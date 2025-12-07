@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-// ignore: must_be_immutable
 class CustomTextform extends StatelessWidget {
   CustomTextform({
     super.key,
@@ -13,7 +12,7 @@ class CustomTextform extends StatelessWidget {
     this.prefixIcon,
     this.obscureText = false,
   });
-  
+
   Widget? suffixIcon, prefixIcon;
   String? Function(String?)? validator;
   String? labelText;
@@ -21,21 +20,48 @@ class CustomTextform extends StatelessWidget {
   InputDecoration? decoration = const InputDecoration();
   TextInputType? keyboardType;
   bool obscureText;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
-      child: TextFormField(
-        keyboardType: keyboardType ?? TextInputType.text,
-        autovalidateMode: AutovalidateMode.onUserInteraction,
-        validator: validator,
-        onChanged: onChanged,
-        obscureText: obscureText,
-        decoration: InputDecoration(
-          labelText: labelText,
-          suffixIcon: suffixIcon,
-          prefixIcon: prefixIcon,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+      padding: const EdgeInsets.only(top: 6),
+      child: SizedBox(
+        height: 46,
+        child: TextFormField(
+          keyboardType: keyboardType ?? TextInputType.text,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          validator: validator,
+          onChanged: onChanged,
+          obscureText: obscureText,
+
+         
+          style: const TextStyle(
+            color: Color.fromARGB(255, 92, 88, 88),
+            fontWeight: FontWeight.w400,
+            fontSize: 14,
+          ),
+
+          decoration: InputDecoration(
+            labelText: labelText,
+
+   
+            labelStyle: const TextStyle(
+              color: Color.fromARGB(255, 92, 88, 88),
+              fontWeight: FontWeight.w400,
+              fontSize: 16,
+            ),
+
+            suffixIcon: suffixIcon,
+            prefixIcon: prefixIcon,
+
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(6),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              vertical: 10,
+              horizontal: 12,
+            ),
+          ),
         ),
       ),
     );

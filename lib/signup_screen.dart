@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:newprojectfirebase/core/constants/string_const.dart';
+import 'package:newprojectfirebase/features/login_screen.dart';
 import 'package:newprojectfirebase/features/providers/auth_provider.dart';
 import 'package:newprojectfirebase/features/widgets/custom_elevated_button.dart';
 import 'package:newprojectfirebase/features/widgets/custom_textformfield.dart';
 import 'package:newprojectfirebase/signout.dart';
+import 'package:newprojectfirebase/verify_identity.dart';
 import 'package:provider/provider.dart';
 
 class SignUpScreen extends StatelessWidget {
@@ -72,7 +74,9 @@ class SignUpScreen extends StatelessWidget {
               ],
             ),
 
-            // ---------------- Address ----------------
+            const SizedBox(height: 12),
+
+            // ---------------- Address --------------------
             Column(
               children: [
                 Align(
@@ -92,6 +96,8 @@ class SignUpScreen extends StatelessWidget {
                 ),
               ],
             ),
+
+            const SizedBox(height: 12),
 
             // ---------------- Phone ----------------
             Column(
@@ -115,6 +121,8 @@ class SignUpScreen extends StatelessWidget {
               ],
             ),
 
+         const SizedBox(height: 12),
+
             // ---------------- Password ----------------
             Column(
               children: [
@@ -137,31 +145,92 @@ class SignUpScreen extends StatelessWidget {
               ],
             ),
 
-            const SizedBox(height: 20),
+    const SizedBox(height: 20),
 
             // ---------------- Proceed Button ----------------
             CustomElevatedButton(
-              width: double.infinity,
-              backgroundColor: const Color(0xFF3D8DB5),
-              onPressed: auth.isLoading ? null : () {},
-              child: auth.isLoading
-                  ? const CircularProgressIndicator()
-                  : Text(AppStrings.proceed),
+  width: double.infinity,
+  backgroundColor: const Color(0xFF3D8DB5),
+  onPressed: auth.isLoading
+      ? null
+      : () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => VerifyIdentityScreen(),
             ),
+          );
+        },
+  child: auth.isLoading
+      ? const CircularProgressIndicator()
+      : Text(
+          AppStrings.proceed,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+),
 
-            const SizedBox(height: 16),
+
+           
 
             // ---------------- Login Info ----------------
             Center(
-              child: Text(
-                AppStrings.loginInfo,
-                style: const TextStyle(color: Color(0xFF897760)),
+              child: TextButton(
+                onPressed: () {
+                  Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const LoginScreen(),
+                          ),
+                        );
+                },
+                child: const Text(
+                  AppStrings.loginInfo,
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 92, 88, 88),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w400
+                  ),
+                ),
               ),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
 
-            // ---------------- Google Sign-In Button ----------------
+
+            Row(
+              children: const [
+                Expanded(
+                  child: Divider(
+                    thickness: 1,
+                    color: Colors.grey,
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Text(
+                    "OR",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Divider(
+                    thickness: 1,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+
+             const SizedBox(height: 10),
+
+            // ---------------- Google Sign-Up Button ----------------
             CustomElevatedButton(
               width: double.infinity,
               backgroundColor: Colors.white,
@@ -180,7 +249,7 @@ class SignUpScreen extends StatelessWidget {
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text("Google Sign-In Failed"),
+                            content: Text("Google Sign-Up Failed"),
                           ),
                         );
                       }

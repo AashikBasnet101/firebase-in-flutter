@@ -13,5 +13,6 @@ class AppStrings {
   static const String enterAddress = "Enter your address";
 
   static const String proceed = "Proceed";
+  static const String login = "Sign In"; 
   static const String loginInfo = "Already have an account? Login";
 }

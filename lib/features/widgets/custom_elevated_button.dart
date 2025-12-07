@@ -9,7 +9,7 @@ class CustomElevatedButton extends StatelessWidget {
     this.foregroundColor,
     this.onPressed,
     this.width,
-    this.height = 55,
+    this.height = 46, 
     final ButtonStyle? style,
   });
 
@@ -24,12 +24,12 @@ class CustomElevatedButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: width, // 👈 apply width here
+      width: width,
       height: height,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(borderRadius ?? 10),
+            borderRadius: BorderRadius.circular(borderRadius ?? 6),
           ),
           backgroundColor: backgroundColor ?? Colors.blue,
           foregroundColor: foregroundColor ?? Colors.white,
