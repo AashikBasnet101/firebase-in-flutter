@@ -3,7 +3,10 @@ import 'dart:convert';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:newprojectfirebase/features/test/test_bloc.dart';
+import 'package:newprojectfirebase/features/test/test_of_bloc.dart';
 import 'package:newprojectfirebase/forgot_password.dart';
 import 'package:newprojectfirebase/login_screen.dart';
 import 'package:newprojectfirebase/utils/route_generator.dart';
@@ -61,9 +64,9 @@ class _MyAppState extends State<MyApp> {
       showSimpleNotification(
         message.notification?.title ?? "",
         message.notification?.body ?? "",
-        
       );
     });
+
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       navigatorKey.currentState?.pushNamed(Routes.notificationsRoute, arguments: NotificationsPayload(
         title: message.notification?.title,
@@ -96,7 +99,7 @@ class _MyAppState extends State<MyApp> {
       onDidReceiveNotificationResponse: (details) {
   final data = jsonDecode(details.payload!);
 
- print(data);
+
   navigatorKey.currentState?.pushNamed(
     Routes.notificationsRoute,
     arguments: NotificationsPayload(
@@ -148,22 +151,30 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
-      ],
+    // return MultiProvider(
+    //   providers: [
+    //     ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
+    //   ],
+    return MultiBlocProvider(providers: [  BlocProvider<CounterBloc>(
+      create: (_) => CounterBloc(),
+    ),
+    BlocProvider<PasswordBloc>(
+          create: (_) => PasswordBloc(),
+        ),],
       child: MaterialApp(
         navigatorKey: navigatorKey,
         onGenerateRoute: RouteGenerator.generateRoute,
         title: 'Google Sign In Demo',
         theme: ThemeData(primarySwatch: Colors.blue),
-        home: const LoginScreen(),
+        home:  TestOfBloc(),
         debugShowCheckedModeBanner: false,
       ),
     );
   }
 
 }
+
+
 class NotificationsPayload {
   final String? title;
   final String? body;
