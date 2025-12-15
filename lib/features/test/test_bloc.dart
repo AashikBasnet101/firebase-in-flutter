@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:http/http.dart' as http;
+import 'package:newprojectfirebase/features/test/post_models.dart';
 import 'package:newprojectfirebase/features/test/test_event.dart';
 import 'package:newprojectfirebase/features/test/test_state.dart';
 
@@ -39,5 +43,38 @@ class PasswordBloc extends Bloc<PasswordEvent, PasswordState> {
         emit(const PasswordUpdatedState(true));
       }
     });
+  }
+}
+
+//api hit bloc
+Future<void> _fetchPosts(
+    FetchDataEvent event, Emitter<ApiState> emit) async {
+  emit(ApiLoadingState());
+
+  try {
+    final response = await http.get(
+      Uri.parse('https://dummyjson.com/posts'),
+    );
+
+    if (response.statusCode == 200) {
+      final decoded = json.decode(response.body);
+
+      final List postsJson = decoded['posts']; // ✅ Correct key
+
+      final posts = postsJson
+          .map((e) => Post.fromJson(e))
+          .toList();
+
+      emit(ApiLoadedState(posts));
+    } else {
+      emit(ApiErrorState('Failed to load data'));
+    }
+  } catch (e) {
+    emit(ApiErrorState(e.toString()));
+  }
+}
+class ApiBloc extends Bloc<ApiEvent, ApiState> {
+  ApiBloc() : super(ApiInitialState()) {
+    on<FetchDataEvent>(_fetchPosts);
   }
 }

@@ -160,6 +160,10 @@ class _MyAppState extends State<MyApp> {
     ),
     BlocProvider<PasswordBloc>(
           create: (_) => PasswordBloc(),
+        ),
+        
+        BlocProvider<ApiBloc>(
+          create: (_) => ApiBloc(),
         ),],
       child: MaterialApp(
         navigatorKey: navigatorKey,
