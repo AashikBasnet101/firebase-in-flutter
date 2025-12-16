@@ -12,7 +12,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         await firestore.collection('users').add({
           'name': event.user?.name,
           'address': event.user?.address,
-          'phoneNumber': event.user?.phone,
           'emailAddress': event.user?.email,
           'password': event.user?.password,
           'identity':{

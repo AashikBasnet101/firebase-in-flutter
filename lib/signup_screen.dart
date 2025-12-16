@@ -19,7 +19,7 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
- String? name , address , phoneNumber, emailAddress , password ;
+ String? name , address , emailAddress , password ;
 
   @override
  
@@ -113,31 +113,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ],
             ),
 
-            const SizedBox(height: 12),
-
-            // ---------------- Phone ----------------
-            Column(
-              children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    AppStrings.phone,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-
-                CustomTextform(
-                  labelText: AppStrings.enterPhone,
-                  keyboardType: TextInputType.phone,
-                  onChanged: (val) {
-                    phoneNumber = val;
-                  },
-                ),
-              ],
-            ),
+            
 
          const SizedBox(height: 12),
 
@@ -202,7 +178,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
     User user=User(
       name: name,
       address: address,
-      phone: phoneNumber,
       email: emailAddress,
       password: password,
       profileUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Salman_Khan_in_2023_%281%29_%28cropped%29.jpg/250px-Salman_Khan_in_2023_%281%29_%28cropped%29.jpg",
