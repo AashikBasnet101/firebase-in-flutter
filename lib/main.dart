@@ -5,10 +5,12 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:newprojectfirebase/features/auth/bloc/auth_bloc.dart';
 import 'package:newprojectfirebase/features/test/test_bloc.dart';
 import 'package:newprojectfirebase/features/test/test_of_bloc.dart';
 import 'package:newprojectfirebase/forgot_password.dart';
 import 'package:newprojectfirebase/login_screen.dart';
+import 'package:newprojectfirebase/signup_screen.dart';
 import 'package:newprojectfirebase/utils/route_generator.dart';
 import 'package:newprojectfirebase/utils/routes.dart';
 import 'package:provider/provider.dart';
@@ -162,6 +164,10 @@ class _MyAppState extends State<MyApp> {
           create: (_) => PasswordBloc(),
         ),
         
+        BlocProvider<AuthBloc>(
+          create: (_) => AuthBloc(),
+        ),
+
         BlocProvider<ApiBloc>(
           create: (_) => ApiBloc(),
         ),],
@@ -170,7 +176,7 @@ class _MyAppState extends State<MyApp> {
         onGenerateRoute: RouteGenerator.generateRoute,
         title: 'Google Sign In Demo',
         theme: ThemeData(primarySwatch: Colors.blue),
-        home:  TestOfBloc(),
+        home:  SignUpScreen(),
         debugShowCheckedModeBanner: false,
       ),
     );

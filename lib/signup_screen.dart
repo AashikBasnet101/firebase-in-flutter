@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:newprojectfirebase/core/constants/string_const.dart';
+import 'package:newprojectfirebase/features/auth/bloc/auth_bloc.dart';
+import 'package:newprojectfirebase/features/auth/bloc/auth_event.dart';
+import 'package:newprojectfirebase/features/auth/model/user.dart';
 import 'package:newprojectfirebase/login_screen.dart';
 import 'package:newprojectfirebase/features/providers/auth_provider.dart';
 import 'package:newprojectfirebase/features/widgets/custom_elevated_button.dart';
@@ -9,11 +12,13 @@ import 'package:newprojectfirebase/verify_identity.dart';
 import 'package:provider/provider.dart';
 
 class SignUpScreen extends StatelessWidget {
-  const SignUpScreen({super.key});
-
+  SignUpScreen({super.key});
+ String? name , address , phoneNumber , password ;
   @override
+ 
   Widget build(BuildContext context) {
-    final auth = Provider.of<AuthProvider>(context);
+  
+
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -69,7 +74,9 @@ class SignUpScreen extends StatelessWidget {
 
                 CustomTextform(
                   labelText: AppStrings.enterName,
-                  onChanged: (val) {},
+                  onChanged: (val) {
+                    name = val;
+                  },
                 ),
               ],
             ),
@@ -92,7 +99,9 @@ class SignUpScreen extends StatelessWidget {
 
                 CustomTextform(
                   labelText: AppStrings.enterAddress,
-                  onChanged: (val) {},
+                  onChanged: (val) {
+                    address =val;
+                  },
                 ),
               ],
             ),
@@ -116,7 +125,9 @@ class SignUpScreen extends StatelessWidget {
                 CustomTextform(
                   labelText: AppStrings.enterPhone,
                   keyboardType: TextInputType.phone,
-                  onChanged: (val) {},
+                  onChanged: (val) {
+                    phoneNumber = val;
+                  },
                 ),
               ],
             ),
@@ -140,7 +151,9 @@ class SignUpScreen extends StatelessWidget {
                 CustomTextform(
                   labelText: AppStrings.enterPassword,
                   obscureText: true,
-                  onChanged: (val) {},
+                  onChanged: (val) {
+                    password = val;
+                  },
                 ),
               ],
             ),
@@ -151,19 +164,30 @@ class SignUpScreen extends StatelessWidget {
             CustomElevatedButton(
   width: double.infinity,
   backgroundColor: const Color(0xFF3D8DB5),
-  onPressed: auth.isLoading
-      ? null
-      : () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => VerifyIdentityScreen(),
-            ),
-          );
+  onPressed: (){
+
+
+    User user=User(
+      name: name,
+      address: address,
+      phone: phoneNumber,
+      password: password,
+      profileUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Salman_Khan_in_2023_%281%29_%28cropped%29.jpg/250px-Salman_Khan_in_2023_%281%29_%28cropped%29.jpg",
+    identity: Identity(
+      type: "passport",
+      url: "https://imgv2-2-f.scribdassets.com/img/document/692140141/original/7de1429d40/1?v=1")
+    );
+    
+    context.read<AuthBloc>().add(SignupEvent(user)) ;
+    
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(
+          //     builder: (context) => VerifyIdentityScreen(),
+          //   ),
+          // );
         },
-  child: auth.isLoading
-      ? const CircularProgressIndicator()
-      : Text(
+  child:  Text(
           AppStrings.proceed,
           style: const TextStyle(
             fontSize: 16,
@@ -231,38 +255,38 @@ class SignUpScreen extends StatelessWidget {
              const SizedBox(height: 10),
 
             // ---------------- Google Sign-Up Button ----------------
-            CustomElevatedButton(
-              width: double.infinity,
-              backgroundColor: Colors.white,
-              foregroundColor: Colors.black,
-              onPressed: auth.isLoading
-                  ? null
-                  : () async {
-                      bool ok = await auth.signInWithGoogle();
-                      if (ok) {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const GoogleSignout(),
-                          ),
-                        );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Google Sign-Up Failed"),
-                          ),
-                        );
-                      }
-                    },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset("assets/google_logo.png", width: 22, height: 22),
-                  const SizedBox(width: 10),
-                  const Text("Sign in with Google"),
-                ],
-              ),
-            ),
+            // CustomElevatedButton(
+            //   width: double.infinity,
+            //   backgroundColor: Colors.white,
+            //   foregroundColor: Colors.black,
+            //   onPressed: auth.isLoading
+            //       ? null
+            //       : () async {
+            //           bool ok = await auth.signInWithGoogle();
+            //           if (ok) {
+            //             Navigator.pushReplacement(
+            //               context,
+            //               MaterialPageRoute(
+            //                 builder: (_) => const GoogleSignout(),
+            //               ),
+            //             );
+            //           } else {
+            //             ScaffoldMessenger.of(context).showSnackBar(
+            //               const SnackBar(
+            //                 content: Text("Google Sign-Up Failed"),
+            //               ),
+            //             );
+            //           }
+            //         },
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.center,
+            //     children: [
+            //       Image.asset("assets/google_logo.png", width: 22, height: 22),
+            //       const SizedBox(width: 10),
+            //       const Text("Sign in with Google"),
+            //     ],
+            //   ),
+            // ),
           ],
         ),
       ),

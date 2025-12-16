@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:newprojectfirebase/features/test/post_models.dart';
@@ -47,19 +48,26 @@ class PasswordBloc extends Bloc<PasswordEvent, PasswordState> {
 }
 
 //api hit bloc
+class ApiBloc extends Bloc<ApiEvent, ApiState> {
+  ApiBloc() : super(ApiInitialState()) {
+    on<FetchDataEvent>(_fetchPosts);
+  }
+}
+
 Future<void> _fetchPosts(
     FetchDataEvent event, Emitter<ApiState> emit) async {
   emit(ApiLoadingState());
 
   try {
-    final response = await http.get(
-      Uri.parse('https://dummyjson.com/posts'),
+    final response = await Dio().get(
+      'https://dummyjson.com/posts',
     );
 
     if (response.statusCode == 200) {
-      final decoded = json.decode(response.body);
+      
 
-      final List postsJson = decoded['posts']; // ✅ Correct key
+      final data = response.data;
+      final postsJson = data['posts'] as List<dynamic>;
 
       final posts = postsJson
           .map((e) => Post.fromJson(e))
@@ -71,10 +79,5 @@ Future<void> _fetchPosts(
     }
   } catch (e) {
     emit(ApiErrorState(e.toString()));
-  }
-}
-class ApiBloc extends Bloc<ApiEvent, ApiState> {
-  ApiBloc() : super(ApiInitialState()) {
-    on<FetchDataEvent>(_fetchPosts);
   }
 }

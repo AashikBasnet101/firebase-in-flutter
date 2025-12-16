@@ -8,18 +8,18 @@ class ApiSuccessPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("API Success")),
-      body: ListView.builder(
-        itemCount: posts.length,
-        itemBuilder: (context, index) {
-          final post = posts[index];
-          return ListTile(
-            title: Text(post.title),
-            subtitle: Text(post.body),
-          );
-        },
-      ),
+    return Expanded(
+            child: ListView.builder(
+              itemCount: posts.length,
+              itemBuilder: (context, index) {
+                final post = posts[index];
+                return ListTile(
+                  title: Text(post.title),
+                  subtitle: Text(post.body),
+                );
+              },
+            )
     );
   }
-}
+      }
+    

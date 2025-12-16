@@ -18,7 +18,7 @@ class GoogleSignout extends StatelessWidget {
 
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const SignUpScreen()),
+              MaterialPageRoute(builder: (context) =>  SignUpScreen()),
             );
           },
         ),

@@ -16,15 +16,7 @@ class TestOfBloc extends StatelessWidget {
       // API LISTENER
       body: BlocListener<ApiBloc, ApiState>(
         listener: (context, state) {
-          if (state is ApiLoadedState) {
-            // Navigate on success
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => ApiSuccessPage(posts: state.posts),
-              ),
-            );
-          }
+          
 
           if (state is ApiErrorState) {
             // Show error
@@ -34,91 +26,91 @@ class TestOfBloc extends StatelessWidget {
           }
         },
 
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-
-              // -------- COUNTER ----------
-              const SizedBox(height: 50),
-              BlocBuilder<CounterBloc, CounterState>(
-                builder: (context, state) {
-                  return Text(
-                    "${state.count}",
-                    style: const TextStyle(fontSize: 40),
-                  );
-                },
-              ),
-
-              const SizedBox(height: 40),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () =>
-                          context.read<CounterBloc>().add(IncrementEvent()),
-                      child: const Text("Add"),
-                    ),
+        child: Column(
+          children: [
+        
+            // -------- COUNTER ----------
+            const SizedBox(height: 50),
+            BlocBuilder<CounterBloc, CounterState>(
+              builder: (context, state) {
+                return Text(
+                  "${state.count}",
+                  style: const TextStyle(fontSize: 40),
+                );
+              },
+            ),
+        
+            const SizedBox(height: 40),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () =>
+                        context.read<CounterBloc>().add(IncrementEvent()),
+                    child: const Text("Add"),
                   ),
-                  const SizedBox(width: 20),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () =>
-                          context.read<CounterBloc>().add(DecrementEvent()),
-                      child: const Text("Subtract"),
-                    ),
+                ),
+                const SizedBox(width: 20),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () =>
+                        context.read<CounterBloc>().add(DecrementEvent()),
+                    child: const Text("Subtract"),
                   ),
-                ],
-              ),
-
-              // -------- PASSWORD ----------
-              const SizedBox(height: 40),
-              BlocBuilder<PasswordBloc, PasswordState>(
-                builder: (context, state) {
-                  return TextFormField(
-                    obscureText: !state.isVisible,
-                    decoration: InputDecoration(
-                      labelText: "Enter Password",
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          state.isVisible
-                              ? Icons.visibility
-                              : Icons.visibility_off,
-                        ),
-                        onPressed: () {
-                          context
-                              .read<PasswordBloc>()
-                              .add(TogglePasswordVisibility());
-                        },
+                ),
+              ],
+            ),
+        
+            // -------- PASSWORD ----------
+            const SizedBox(height: 40),
+            BlocBuilder<PasswordBloc, PasswordState>(
+              builder: (context, state) {
+                return TextFormField(
+                  obscureText: !state.isVisible,
+                  decoration: InputDecoration(
+                    labelText: "Enter Password",
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        state.isVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
                       ),
-                    ),
-                  );
-                },
-              ),
-
-              // -------- API BUTTON ----------
-              const SizedBox(height: 40),
-
-              BlocBuilder<ApiBloc, ApiState>(
-                builder: (context, state) {
-                  if (state is ApiLoadingState) {
-                    return const CircularProgressIndicator();
-                  }
-
-                  return SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
                       onPressed: () {
-                        context.read<ApiBloc>().add(FetchDataEvent());
+                        context
+                            .read<PasswordBloc>()
+                            .add(TogglePasswordVisibility());
                       },
-                      child: const Text("Fetch API Data"),
                     ),
-                  );
-                },
-              ),
-            ],
-          ),
+                  ),
+                );
+              },
+            ),
+        
+            // -------- API BUTTON ----------
+            const SizedBox(height: 40),
+        
+            BlocBuilder<ApiBloc, ApiState>(
+              builder: (context, state) {
+                if (state is ApiLoadingState) {
+                  return const CircularProgressIndicator();
+                }
+                else if (state is ApiLoadedState) {
+                  return ApiSuccessPage(posts: state.posts);
+                }
+        
+                return SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      context.read<ApiBloc>().add(FetchDataEvent());
+                    },
+                    child: const Text("Fetch API Data"),
+                  ),
+                );
+              },
+            ),
+          ],
         ),
       ),
     );
