@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:newprojectfirebase/features/auth/bloc/auth_event.dart';
 import 'package:newprojectfirebase/features/auth/bloc/auth_state.dart';
@@ -10,16 +9,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on <SignupEvent>((event, emit) async {
       emit(AuthLoadingState());
       try {
-       QuerySnapshot userQuery = await firestore
-          .collection('users')
-          .where('emailAddress', isEqualTo: event.user?.email)
-
-         
-          .get(); 
-          if (userQuery.docs.isNotEmpty){
-            emit(AuthErrorState("Email already in use"));
-            return;
-          }
         await firestore.collection('users').add({
           'name': event.user?.name,
           'address': event.user?.address,
@@ -37,34 +26,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(AuthErrorState(e.toString()));
       }
     });
-
-
-
     
-
-    on<LoginEvent>((event, emit) async {
-  emit(AuthLoadingState());
-  try {
-    if (event.userLogin?.email != null && event.userLogin?.password != null) {
-      // Query Firestore for a user with matching email and password
-     QuerySnapshot userQuery = await firestore
-          .collection('users')
-          .where('emailAddress', isEqualTo: event.userLogin!.email)
-          .where('password', isEqualTo: event.userLogin!.password)
-          .get(); 
-
-      if (userQuery.docs.isNotEmpty) {
-        // Login successful
-        emit(AuthLoadedState());
-      } else {
-        emit(AuthErrorState("Invalid email or password"));
-      }
-    } else {
-      emit(AuthErrorState("Email or password is missing"));
-    }
-  } catch (e) {
-    emit(AuthErrorState("Something went wrong: ${e.toString()}"));
-  }
-});
   }
 }
