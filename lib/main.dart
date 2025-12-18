@@ -157,7 +157,8 @@ class _MyAppState extends State<MyApp> {
     //   providers: [
     //     ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
     //   ],
-    return MultiBlocProvider(providers: [  BlocProvider<CounterBloc>(
+    return MultiBlocProvider(providers: [  
+      BlocProvider<CounterBloc>(
       create: (_) => CounterBloc(),
     ),
     BlocProvider<PasswordBloc>(
