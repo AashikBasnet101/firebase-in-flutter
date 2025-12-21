@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:newprojectfirebase/add_places.dart';
 import 'package:newprojectfirebase/features/auth/bloc/auth_bloc.dart';
+import 'package:newprojectfirebase/features/cloudinary/bloc/add_places_bloc.dart';
 import 'package:newprojectfirebase/features/test/test_bloc.dart';
 import 'package:newprojectfirebase/features/test/test_of_bloc.dart';
 import 'package:newprojectfirebase/forgot_password.dart';
@@ -172,6 +173,9 @@ class _MyAppState extends State<MyApp> {
 
         BlocProvider<ApiBloc>(
           create: (_) => ApiBloc(),
+        ),
+        BlocProvider<AddPlacesBloc>(
+          create: (_) => AddPlacesBloc(),
         ),],
       child: MaterialApp(
         navigatorKey: navigatorKey,

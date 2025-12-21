@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:newprojectfirebase/features/auth/bloc/auth_event.dart';
 import 'package:newprojectfirebase/features/auth/bloc/auth_state.dart';
+import 'package:newprojectfirebase/utils/cloudinary.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -12,14 +15,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       try {
        QuerySnapshot userQuery = await firestore
           .collection('users')
-          .where('emailAddress', isEqualTo: event.user?.email)
-
-         
-          .get(); 
+          .where('emailAddress', isEqualTo: event.user?.email).get(); 
           if (userQuery.docs.isNotEmpty){
             emit(AuthErrorState("Email already in use"));
             return;
           }
+
+          Map<String, dynamic> userData =     await CloudinaryService().uploadImage(  File(event.user!.identity!.url!), );
+
         await firestore.collection('users').add({
           'name': event.user?.name,
           'address': event.user?.address,
@@ -29,7 +32,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             'idType': event.user?.identity?.type,
             'url': event.user?.identity?.url,
           },
-          'profileUrl': event.user?.profileUrl,
+          'profileUrl': userData['secure_url'],
+          'profilePublicId': userData['public_id'],
         });
         
         emit(AuthLoadedState());

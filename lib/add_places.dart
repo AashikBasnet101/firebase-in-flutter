@@ -1,7 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+
+import 'package:newprojectfirebase/features/cloudinary/bloc/add_places_bloc.dart';
+import 'package:newprojectfirebase/features/cloudinary/bloc/add_places_event.dart';
+import 'package:newprojectfirebase/features/cloudinary/bloc/add_places_state.dart';
+import 'package:newprojectfirebase/features/cloudinary/model/add_places.dart';
 import 'package:newprojectfirebase/features/widgets/custom_elevated_button.dart';
 import 'package:newprojectfirebase/features/widgets/custom_textformfield.dart';
 
@@ -15,12 +21,14 @@ class AddPlacesScreen extends StatefulWidget {
 class _AddPlacesScreenState extends State<AddPlacesScreen> {
   String? destinationName;
   String? description;
-  File? selectedImage; // stores selected image
+  File? selectedImage;
+
   final ImagePicker _picker = ImagePicker();
 
-  
   Future<void> pickImage() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? image =
+        await _picker.pickImage(source: ImageSource.gallery);
+
     if (image != null) {
       setState(() {
         selectedImage = File(image.path);
@@ -28,127 +36,176 @@ class _AddPlacesScreenState extends State<AddPlacesScreen> {
     }
   }
 
+  void showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
+  void submitPlace() {
+    if (destinationName == null || destinationName!.trim().isEmpty) {
+      showError("Please enter destination name");
+      return;
+    }
+
+    if (description == null || description!.trim().isEmpty) {
+      showError("Please enter description");
+      return;
+    }
+
+    if (selectedImage == null) {
+      showError("Please upload an image");
+      return;
+    }
+
+    final place = AddPlace(
+      destination: destinationName!.trim(),
+      aboutDestination: description!.trim(),
+    );
+
+    context.read<AddPlacesBloc>().add(
+          AddPlaceEvent(
+            place: place,
+            imageFile: selectedImage!,
+          ),
+        );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: const BackButton(),
-        title: const Text(
-          "Add Places",
-          style: TextStyle(fontWeight: FontWeight.w600),
+    return BlocListener<AddPlacesBloc, AddPlacesState>(
+      listener: (context, state) {
+        if (state is AddPlacesLoadingState) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) =>
+                const Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (state is AddPlacesLoadedState) {
+          // Close loader
+          if (Navigator.canPop(context)) Navigator.pop(context);
+
+          // Show success SnackBar
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Place added successfully!"),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 2),
+            ),
+          );
+
+          // Optional: reset form fields for next entry
+          setState(() {
+            destinationName = null;
+            description = null;
+            selectedImage = null;
+          });
+        }
+
+        if (state is AddPlacesErrorState) {
+          if (Navigator.canPop(context)) Navigator.pop(context);
+          showError(state.message);
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            "Add Places",
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
+          centerTitle: true,
         ),
-        centerTitle: true,
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ---------------- Destination ----------------
-            const Text(
-              "Destination",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Destination",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
-            ),
-            CustomTextform(
-              labelText: "Enter the destination name",
-              onChanged: (val) {
-                destinationName = val;
-              },
-            ),
-
-            const SizedBox(height: 16),
-
-            // ---------------- About Destination ----------------
-            const Text(
-              "About the Destination",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
+              CustomTextform(
+                labelText: "Enter the destination name",
+                onChanged: (val) => destinationName = val,
               ),
-            ),
-            CustomTextform(
-              labelText: "Brief description of the destination",
-              maxLines: 5,
-              keyboardType: TextInputType.multiline,
-              onChanged: (val) {
-                description = val;
-              },
-            ),
 
-            const SizedBox(height: 16),
+              const SizedBox(height: 16),
 
-            // ---------------- Upload Image ----------------
-            const Text(
-              "Upload Image",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
+              const Text(
+                "About the Destination",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
-            ),
-            const SizedBox(height: 8),
-            GestureDetector(
-              onTap: pickImage, // open gallery on tap
-              child: Container(
-                height: 160,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey),
-                ),
-                child: selectedImage != null
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.file(
-                          selectedImage!,
-                          fit: BoxFit.cover,
+              CustomTextform(
+                labelText: "Brief description of the destination",
+                maxLines: 5,
+                keyboardType: TextInputType.multiline,
+                onChanged: (val) => description = val,
+              ),
+
+              const SizedBox(height: 16),
+
+              const Text(
+                "Upload Image",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 8),
+
+              GestureDetector(
+                onTap: pickImage,
+                child: Container(
+                  height: 160,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey),
+                  ),
+                  child: selectedImage != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.file(
+                            selectedImage!,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.upload_outlined,
+                                size: 32, color: Colors.grey),
+                            SizedBox(height: 8),
+                            Text("Tap to upload image"),
+                          ],
                         ),
-                      )
-                    : Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(Icons.upload_outlined, size: 32, color: Colors.grey),
-                          SizedBox(height: 8),
-                          Text(
-                            "Drag and Drop here",
-                            style: TextStyle(fontWeight: FontWeight.w500),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            "or",
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            "Upload photos of destination",
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        ],
-                      ),
-              ),
-            ),
-
-SizedBox(height: MediaQuery.of(context).size.height * 0.2),
-
-            // ---------------- Proceed Button ----------------
-            CustomElevatedButton(
-              width: double.infinity,
-              backgroundColor: const Color(0xFF3D8DB5),
-              onPressed: () {
-                // TODO: Handle proceed action
-              },
-              child: const Text(
-                "Proceed",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
                 ),
               ),
-            ),
-          ],
+
+              const SizedBox(height: 40),
+
+              BlocBuilder<AddPlacesBloc, AddPlacesState>(
+                builder: (context, state) {
+                  final isLoading = state is AddPlacesLoadingState;
+
+                  return CustomElevatedButton(
+                    width: double.infinity,
+                    backgroundColor: const Color(0xFF3D8DB5),
+                    onPressed: isLoading ? null : submitPlace,
+                    child: isLoading
+                        ? const CircularProgressIndicator(
+                            color: Colors.white,
+                          )
+                        : const Text(
+                            "Proceed",
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w500),
+                          ),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
