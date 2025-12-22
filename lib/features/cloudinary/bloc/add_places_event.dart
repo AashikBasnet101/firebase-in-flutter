@@ -12,3 +12,11 @@ class AddPlaceEvent extends AddPlacesEvent {
     required this.imageFile,
   });
 }
+
+
+
+
+//get places event 
+abstract class GetPlacesEvent {}
+
+class FetchPlacesEvent extends GetPlacesEvent {}

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:newprojectfirebase/add_places.dart';
 import 'package:newprojectfirebase/main.dart';
 import 'package:newprojectfirebase/notifications.dart';
 import 'package:newprojectfirebase/utils/routes.dart';
@@ -31,6 +32,9 @@ class RouteGenerator {
 
         case Routes.verifyIdentityRoute:
       return MaterialPageRoute(builder: (_) => VerifyIdentityScreen());
+
+      case Routes.addPlaceRoute:
+      return MaterialPageRoute(builder: (_)=> AddPlacesScreen());
         
         default:
         return MaterialPageRoute(

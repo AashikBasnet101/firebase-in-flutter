@@ -3,4 +3,6 @@ class Routes {
   static const String editCommentRoute = '/editComment';
   static const String notificationsRoute = '/notifications';
   static const String verifyIdentityRoute = '/verifyIdentity';
+  static const String signinRoute = '/signin';
+  static const String addPlaceRoute = '/addPlace';
 }

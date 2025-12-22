@@ -1,15 +1,15 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-
 import 'package:newprojectfirebase/features/cloudinary/bloc/add_places_bloc.dart';
 import 'package:newprojectfirebase/features/cloudinary/bloc/add_places_event.dart';
 import 'package:newprojectfirebase/features/cloudinary/bloc/add_places_state.dart';
 import 'package:newprojectfirebase/features/cloudinary/model/add_places.dart';
+import 'package:newprojectfirebase/features/cloudinary/presentation/places_list_screen.dart';
 import 'package:newprojectfirebase/features/widgets/custom_elevated_button.dart';
 import 'package:newprojectfirebase/features/widgets/custom_textformfield.dart';
+import 'package:newprojectfirebase/features/widgets/spin_kit.dart';
 
 class AddPlacesScreen extends StatefulWidget {
   const AddPlacesScreen({super.key});
@@ -22,13 +22,10 @@ class _AddPlacesScreenState extends State<AddPlacesScreen> {
   String? destinationName;
   String? description;
   File? selectedImage;
-
   final ImagePicker _picker = ImagePicker();
 
   Future<void> pickImage() async {
-    final XFile? image =
-        await _picker.pickImage(source: ImageSource.gallery);
-
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
       setState(() {
         selectedImage = File(image.path);
@@ -64,11 +61,20 @@ class _AddPlacesScreenState extends State<AddPlacesScreen> {
     );
 
     context.read<AddPlacesBloc>().add(
-          AddPlaceEvent(
-            place: place,
-            imageFile: selectedImage!,
-          ),
+          AddPlaceEvent(place: place, imageFile: selectedImage!),
         );
+  }
+
+  void _showLoader() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => backdropFilter(context), // your custom SpinKit loader
+    );
+  }
+
+  void _hideLoader() {
+    if (Navigator.canPop(context)) Navigator.pop(context);
   }
 
   @override
@@ -76,46 +82,35 @@ class _AddPlacesScreenState extends State<AddPlacesScreen> {
     return BlocListener<AddPlacesBloc, AddPlacesState>(
       listener: (context, state) {
         if (state is AddPlacesLoadingState) {
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (_) =>
-                const Center(child: CircularProgressIndicator()),
-          );
+          _showLoader();
         }
 
         if (state is AddPlacesLoadedState) {
-          // Close loader
-          if (Navigator.canPop(context)) Navigator.pop(context);
+          _hideLoader();
 
-          // Show success SnackBar
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text("Place added successfully!"),
               backgroundColor: Colors.green,
-              duration: Duration(seconds: 2),
             ),
           );
 
-          // Optional: reset form fields for next entry
-          setState(() {
-            destinationName = null;
-            description = null;
-            selectedImage = null;
-          });
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const PlacesListScreen(),
+            ),
+          );
         }
 
         if (state is AddPlacesErrorState) {
-          if (Navigator.canPop(context)) Navigator.pop(context);
+          _hideLoader();
           showError(state.message);
         }
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text(
-            "Add Places",
-            style: TextStyle(fontWeight: FontWeight.w600),
-          ),
+          title: const Text("Add Places"),
           centerTitle: true,
         ),
         body: SingleChildScrollView(
@@ -123,36 +118,22 @@ class _AddPlacesScreenState extends State<AddPlacesScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                "Destination",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              ),
+              const Text("Destination", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
               CustomTextform(
                 labelText: "Enter the destination name",
                 onChanged: (val) => destinationName = val,
               ),
-
               const SizedBox(height: 16),
-
-              const Text(
-                "About the Destination",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              ),
+              const Text("About the Destination", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
               CustomTextform(
                 labelText: "Brief description of the destination",
                 maxLines: 5,
                 keyboardType: TextInputType.multiline,
                 onChanged: (val) => description = val,
               ),
-
               const SizedBox(height: 16),
-
-              const Text(
-                "Upload Image",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              ),
+              const Text("Upload Image", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
               const SizedBox(height: 8),
-
               GestureDetector(
                 onTap: pickImage,
                 child: Container(
@@ -165,42 +146,27 @@ class _AddPlacesScreenState extends State<AddPlacesScreen> {
                   child: selectedImage != null
                       ? ClipRRect(
                           borderRadius: BorderRadius.circular(8),
-                          child: Image.file(
-                            selectedImage!,
-                            fit: BoxFit.cover,
-                          ),
+                          child: Image.file(selectedImage!, fit: BoxFit.cover),
                         )
                       : Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: const [
-                            Icon(Icons.upload_outlined,
-                                size: 32, color: Colors.grey),
+                            Icon(Icons.upload_outlined, size: 32, color: Colors.grey),
                             SizedBox(height: 8),
                             Text("Tap to upload image"),
                           ],
                         ),
                 ),
               ),
-
               const SizedBox(height: 40),
-
               BlocBuilder<AddPlacesBloc, AddPlacesState>(
                 builder: (context, state) {
                   final isLoading = state is AddPlacesLoadingState;
-
                   return CustomElevatedButton(
                     width: double.infinity,
                     backgroundColor: const Color(0xFF3D8DB5),
                     onPressed: isLoading ? null : submitPlace,
-                    child: isLoading
-                        ? const CircularProgressIndicator(
-                            color: Colors.white,
-                          )
-                        : const Text(
-                            "Proceed",
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w500),
-                          ),
+                    child: const Text("Proceed", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
                   );
                 },
               ),

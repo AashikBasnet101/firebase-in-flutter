@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:newprojectfirebase/features/cloudinary/bloc/add_places_event.dart';
 import 'package:newprojectfirebase/features/cloudinary/bloc/add_places_state.dart';
+import 'package:newprojectfirebase/features/cloudinary/model/add_places.dart';
 import 'package:newprojectfirebase/utils/cloudinary.dart';
 
 class AddPlacesBloc extends Bloc<AddPlacesEvent, AddPlacesState> {
@@ -29,3 +30,35 @@ class AddPlacesBloc extends Bloc<AddPlacesEvent, AddPlacesState> {
     });
   }
 }
+
+
+
+//get places bloc
+
+
+class GetPlacesBloc extends Bloc<GetPlacesEvent, GetPlacesState> {
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+  GetPlacesBloc() : super(GetPlacesInitialState()) {
+    on<FetchPlacesEvent>((event, emit) async {
+      emit(GetPlacesLoadingState());
+
+      try {
+        final snapshot = await firestore
+            .collection('places')
+            .orderBy('createdAt', descending: true)
+            .get();
+
+        final places = snapshot.docs.map((doc) {
+          return AddPlace.fromJson(doc.data());
+        }).toList();
+
+        emit(GetPlacesLoadedState(places));
+      } catch (e) {
+        emit(GetPlacesErrorState(e.toString()));
+      }
+    });
+  }
+}
+
+
