@@ -3,37 +3,33 @@ import 'package:newprojectfirebase/features/cloudinary/model/add_places.dart';
 
 abstract class AddPlacesEvent {}
 
+// ADD PLACE
 class AddPlaceEvent extends AddPlacesEvent {
   final AddPlace place;
   final File imageFile;
 
-  AddPlaceEvent({
-    required this.place,
-    required this.imageFile,
-  });
+  AddPlaceEvent({required this.place, required this.imageFile});
 }
 
+// UPDATE PLACE
+class UpdatePlaceEvent extends AddPlacesEvent {
+  final AddPlace place;
+  final File? imageFile;
 
+  UpdatePlaceEvent({required this.place, this.imageFile});
+}
 
-
-//get places event 
+// GET PLACES
 abstract class GetPlacesEvent {}
-
 class FetchPlacesEvent extends GetPlacesEvent {}
-
 class RemovePlaceFromUIEvent extends GetPlacesEvent {
   final String placeId;
   RemovePlaceFromUIEvent(this.placeId);
 }
 
-
-
-//delete place event
+// DELETE PLACE
 abstract class DeletePlaceEvent {}
-
 class DeletePlaceByIdEvent extends DeletePlaceEvent {
   final String placeId;
   DeletePlaceByIdEvent(this.placeId);
 }
-
-

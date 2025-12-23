@@ -4,12 +4,11 @@ class AddPlace {
   final String? url;
   final String? id;
 
-
   AddPlace({
     required this.destination,
     required this.aboutDestination,
     this.url,
-    this.id
+    this.id,
   });
 
   factory AddPlace.fromJson(Map<String, dynamic> json) {
@@ -17,7 +16,7 @@ class AddPlace {
       destination: json['destination'],
       aboutDestination: json['about_destination'],
       url: json['url'],
-      id: json['id']
+      id: json['id'], 
     );
   }
 
@@ -25,7 +24,8 @@ class AddPlace {
     return {
       'destination': destination,
       'about_destination': aboutDestination,
-      'url': url
+      'url': url,
+      'id': id, 
     };
   }
 }

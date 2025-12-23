@@ -12,6 +12,7 @@ class CustomTextform extends StatelessWidget {
     this.prefixIcon,
     this.obscureText = false,
     this.maxLines,
+    this.initialValue, // ✅ ADDED
   });
 
   final Widget? suffixIcon;
@@ -23,12 +24,14 @@ class CustomTextform extends StatelessWidget {
   final InputDecoration? decoration;
   final TextInputType? keyboardType;
   final bool obscureText;
+  final String? initialValue; // ✅ ADDED
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 6),
       child: TextFormField(
+        initialValue: initialValue, // ✅ USED HERE
         keyboardType: keyboardType ?? TextInputType.multiline,
         autovalidateMode: AutovalidateMode.onUserInteraction,
         validator: validator,
@@ -40,23 +43,24 @@ class CustomTextform extends StatelessWidget {
           fontWeight: FontWeight.w400,
           fontSize: 14,
         ),
-        decoration: InputDecoration(
-          labelText: labelText,
-          labelStyle: const TextStyle(
-            color: Color.fromARGB(255, 92, 88, 88),
-            fontWeight: FontWeight.w400,
-            fontSize: 16,
-          ),
-          suffixIcon: suffixIcon,
-          prefixIcon: prefixIcon,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(6),
-          ),
-          contentPadding: const EdgeInsets.symmetric(
-            vertical: 12,
-            horizontal: 12,
-          ),
-        ),
+        decoration: decoration ??
+            InputDecoration(
+              labelText: labelText,
+              labelStyle: const TextStyle(
+                color: Color.fromARGB(255, 92, 88, 88),
+                fontWeight: FontWeight.w400,
+                fontSize: 16,
+              ),
+              suffixIcon: suffixIcon,
+              prefixIcon: prefixIcon,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(6),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                vertical: 12,
+                horizontal: 12,
+              ),
+            ),
       ),
     );
   }

@@ -11,8 +11,11 @@ import 'package:newprojectfirebase/features/widgets/custom_elevated_button.dart'
 import 'package:newprojectfirebase/features/widgets/custom_textformfield.dart';
 import 'package:newprojectfirebase/features/widgets/spin_kit.dart';
 
+
 class AddPlacesScreen extends StatefulWidget {
-  const AddPlacesScreen({super.key});
+  final AddPlace? placeToEdit;
+
+  const AddPlacesScreen({super.key, this.placeToEdit});
 
   @override
   State<AddPlacesScreen> createState() => _AddPlacesScreenState();
@@ -24,6 +27,15 @@ class _AddPlacesScreenState extends State<AddPlacesScreen> {
   File? selectedImage;
   final ImagePicker _picker = ImagePicker();
 
+  @override
+  void initState() {
+    super.initState();
+    if (widget.placeToEdit != null) {
+      destinationName = widget.placeToEdit!.destination;
+      description = widget.placeToEdit!.aboutDestination;
+    }
+  }
+
   Future<void> pickImage() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
@@ -34,9 +46,7 @@ class _AddPlacesScreenState extends State<AddPlacesScreen> {
   }
 
   void showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
   void submitPlace() {
@@ -44,32 +54,34 @@ class _AddPlacesScreenState extends State<AddPlacesScreen> {
       showError("Please enter destination name");
       return;
     }
-
     if (description == null || description!.trim().isEmpty) {
       showError("Please enter description");
-      return;
-    }
-
-    if (selectedImage == null) {
-      showError("Please upload an image");
       return;
     }
 
     final place = AddPlace(
       destination: destinationName!.trim(),
       aboutDestination: description!.trim(),
+      id: widget.placeToEdit?.id,
     );
 
-    context.read<AddPlacesBloc>().add(
-          AddPlaceEvent(place: place, imageFile: selectedImage!),
-        );
+    final bloc = context.read<AddPlacesBloc>();
+    if (widget.placeToEdit != null) {
+      bloc.add(UpdatePlaceEvent(place: place, imageFile: selectedImage));
+    } else {
+      if (selectedImage == null) {
+        showError("Please upload an image");
+        return;
+      }
+      bloc.add(AddPlaceEvent(place: place, imageFile: selectedImage!));
+    }
   }
 
   void _showLoader() {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => backdropFilter(context), // your custom SpinKit loader
+      builder: (_) => backdropFilter(context),
     );
   }
 
@@ -81,28 +93,22 @@ class _AddPlacesScreenState extends State<AddPlacesScreen> {
   Widget build(BuildContext context) {
     return BlocListener<AddPlacesBloc, AddPlacesState>(
       listener: (context, state) {
-        if (state is AddPlacesLoadingState) {
-          _showLoader();
-        }
-
+        if (state is AddPlacesLoadingState) _showLoader();
         if (state is AddPlacesLoadedState) {
           _hideLoader();
-
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Place added successfully!"),
+            SnackBar(
+              content: Text(widget.placeToEdit != null
+                  ? "Place updated successfully!"
+                  : "Place added successfully!"),
               backgroundColor: Colors.green,
             ),
           );
-
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(
-              builder: (_) => const PlacesListScreen(),
-            ),
+            MaterialPageRoute(builder: (_) => const PlacesListScreen()),
           );
         }
-
         if (state is AddPlacesErrorState) {
           _hideLoader();
           showError(state.message);
@@ -110,7 +116,7 @@ class _AddPlacesScreenState extends State<AddPlacesScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Add Places"),
+          title: Text(widget.placeToEdit != null ? "Edit Place" : "Add Place"),
           centerTitle: true,
         ),
         body: SingleChildScrollView(
@@ -118,21 +124,26 @@ class _AddPlacesScreenState extends State<AddPlacesScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text("Destination", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+              const Text("Destination",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
               CustomTextform(
                 labelText: "Enter the destination name",
+                initialValue: destinationName,
                 onChanged: (val) => destinationName = val,
               ),
               const SizedBox(height: 16),
-              const Text("About the Destination", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+              const Text("About the Destination",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
               CustomTextform(
                 labelText: "Brief description of the destination",
+                initialValue: description,
                 maxLines: 5,
                 keyboardType: TextInputType.multiline,
                 onChanged: (val) => description = val,
               ),
               const SizedBox(height: 16),
-              const Text("Upload Image", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+              const Text("Upload Image",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
               const SizedBox(height: 8),
               GestureDetector(
                 onTap: pickImage,
@@ -140,22 +151,28 @@ class _AddPlacesScreenState extends State<AddPlacesScreen> {
                   height: 160,
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey),
-                  ),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.grey)),
                   child: selectedImage != null
                       ? ClipRRect(
                           borderRadius: BorderRadius.circular(8),
                           child: Image.file(selectedImage!, fit: BoxFit.cover),
                         )
-                      : Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Icon(Icons.upload_outlined, size: 32, color: Colors.grey),
-                            SizedBox(height: 8),
-                            Text("Tap to upload image"),
-                          ],
-                        ),
+                      : widget.placeToEdit?.url != null
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.network(widget.placeToEdit!.url!,
+                                  fit: BoxFit.cover),
+                            )
+                          : Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Icon(Icons.upload_outlined,
+                                    size: 32, color: Colors.grey),
+                                SizedBox(height: 8),
+                                Text("Tap to upload image"),
+                              ],
+                            ),
                 ),
               ),
               const SizedBox(height: 40),
@@ -166,7 +183,9 @@ class _AddPlacesScreenState extends State<AddPlacesScreen> {
                     width: double.infinity,
                     backgroundColor: const Color(0xFF3D8DB5),
                     onPressed: isLoading ? null : submitPlace,
-                    child: const Text("Proceed", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                    child: Text(widget.placeToEdit != null ? "Update" : "Proceed",
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w500)),
                   );
                 },
               ),
